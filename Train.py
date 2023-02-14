@@ -50,54 +50,54 @@ def Train(model,seq,learn_rate=1e-1,rept_time=3):
     return model
 
 
-def Accuracy(model,target_model,M=50,L=1000):
-    # M is the number of sampled sequence.
-    # L is the sequence length
-    error = 0.
-    for j in range(M):
-        seq = cmm.EESampSeq(target_model, L)
-        error += -cmm.LogClassicalProbability(
-            target_model, seq) - model(seq).item()
-    error /= L*M
+# def Accuracy(model,target_model,M=50,L=1000):
+#     # M is the number of sampled sequence.
+#     # L is the sequence length
+#     error = 0.
+#     for j in range(M):
+#         seq = cmm.EESampSeq(target_model, L)
+#         error += -cmm.LogClassicalProbability(
+#             target_model, seq) - model(seq).item()
+#     error /= L*M
 
-    return -error
+#     return -error
 
 # This model generates the prediction accuracy between model and target model
 # Input: model, target model, length of past sequence, length of future sequence
 # Output: Accuracy (The KL divergence between the model and target model)
 
 
-def cond_accuracy(model, target_model, past_len=3, future_len=3):
-    alphabet_size = model.alphabet_size
-    cond_error = zeros(alphabet_size**past_len)
-    ave_cond_error = 0.
-    for i in range(alphabet_size**past_len):
-        past = decimal_to_past(i,alphabet_size, past_len)
-        log_p_past = cmm.LogClassicalProbability(target_model, past)
-        if log_p_past is NaN:
-            continue
-        for j in range(alphabet_size**future_len):
-            future = decimal_to_past(j,alphabet_size, future_len)
-            log_p_target = cmm.LogConditionalClassicalProbability(
-                target_model, past, future)
-            if log_p_target is NaN:
-                continue
-            diff = -model.log_cond_prob(
-                past,future)+log_p_target
-            diff *= exp2(log_p_target)
-            cond_error[i] += diff
-        # print(cmm.LogClassicalProbability(target_model, past))
-        ave_cond_error += exp2(log_p_past)*cond_error[i]
-    return ave_cond_error/future_len
+# def cond_accuracy(model, target_model, past_len=3, future_len=3):
+#     alphabet_size = model.alphabet_size
+#     cond_error = zeros(alphabet_size**past_len)
+#     ave_cond_error = 0.
+#     for i in range(alphabet_size**past_len):
+#         past = decimal_to_past(i,alphabet_size, past_len)
+#         log_p_past = cmm.LogClassicalProbability(target_model, past)
+#         if log_p_past is NaN:
+#             continue
+#         for j in range(alphabet_size**future_len):
+#             future = decimal_to_past(j,alphabet_size, future_len)
+#             log_p_target = cmm.LogConditionalClassicalProbability(
+#                 target_model, past, future)
+#             if log_p_target is NaN:
+#                 continue
+#             diff = -model.log_cond_prob(
+#                 past,future)+log_p_target
+#             diff *= exp2(log_p_target)
+#             cond_error[i] += diff
+#         # print(cmm.LogClassicalProbability(target_model, past))
+#         ave_cond_error += exp2(log_p_past)*cond_error[i]
+#     return ave_cond_error/future_len
 
 
-def decimal_to_past(i, alphabet_size, past_len):
-    past = []
+# def decimal_to_past(i, alphabet_size, past_len):
+#     past = []
 
-    for _ in range(past_len):
-        past.append(i % alphabet_size)
-        i = i // alphabet_size
-    # past = [int(symbol) for symbol in past]
-    past.reverse()
+#     for _ in range(past_len):
+#         past.append(i % alphabet_size)
+#         i = i // alphabet_size
+#     # past = [int(symbol) for symbol in past]
+#     past.reverse()
 
-    return past
+#     return past
